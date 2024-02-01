@@ -273,6 +273,16 @@ func ChannelCreate(guildID, channelName string) (string, error) {
 	return st.ID, nil
 }
 
+func ChannelCreateCategory(guildID, channelName string) (string, error) {
+	// 创建新的频道类别
+	st, err := Session.GuildChannelCreate(guildID, channelName, discordgo.ChannelTypeGuildCategory)
+	if err != nil {
+		common.LogError(context.Background(), fmt.Sprintf("创建频道类别时异常 %s", err.Error()))
+		return "", err
+	}
+	return st.ID, nil
+}
+
 func ChannelDel(channelId string) (string, error) {
 	// 创建新的频道
 	st, err := Session.ChannelDelete(channelId)
