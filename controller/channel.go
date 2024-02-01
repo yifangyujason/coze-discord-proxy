@@ -77,7 +77,7 @@ func ChannelCreateCategory(c *gin.Context) {
 
 	var channelId string
 
-	channelId, err = discord.ChannelCreate(discord.GuildId, channelModel.Name)
+	channelId, err = discord.ChannelCreateCategory(discord.GuildId, channelModel.Name)
 
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
