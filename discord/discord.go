@@ -198,7 +198,7 @@ func processMessageForOpenAI(m *discordgo.MessageUpdate) model.OpenAIChatComplet
 				if m.Content != "" {
 					m.Content += "\n"
 				}
-				m.Content += fmt.Sprintf("%s\n![Image](%s)", embed.Image.URL, embed.Image.URL)
+				m.Content += fmt.Sprintf("[![Image](%s)](%s)", embed.Image.URL, embed.Image.URL)
 			}
 		}
 	}
