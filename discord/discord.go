@@ -115,11 +115,10 @@ func loadBotConfig() {
 	// 检查文件是否存在
 	_, err := os.Stat("config/bot_config.json")
 	if err != nil {
-		if os.IsNotExist(err) {
-			return
-		} else {
+		if !os.IsNotExist(err) {
 			common.SysError("载入bot_config.json文件异常")
 		}
+		return
 	}
 
 	// 读取文件
@@ -153,7 +152,7 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 		return
 	}
 
-	// 如果作者为 nil 或消息来自 bot 本身，则发送停止信号
+	// 如果作者为 nil 或消息来自 bot 本身,则发送停止信号
 	if m.Author == nil || m.Author.ID == s.State.User.ID {
 		stopChan <- m.ReferencedMessage.ID
 		return
@@ -184,7 +183,7 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 			// data: {"id":"chatcmpl-8lho2xvdDFyBdFkRwWAcMpWWAgymJ","object":"chat.completion.chunk","created":1706380498,"model":"gpt-3.5-turbo-0613","system_fingerprint":null,"choices":[{"index":0,"delta":{"content":"？"},"logprobs":null,"finish_reason":null}]}
 			// data :{"id":"1200873365351698694","object":"chat.completion.chunk","created":1706380922,"model":"COZE","choices":[{"index":0,"message":{"role":"assistant","content":"你好！有什么我可以帮您的吗？如果有任"},"logprobs":null,"finish_reason":"","delta":{"content":"吗？如果有任"}}],"usage":{"prompt_tokens":13,"completion_tokens":19,"total_tokens":32},"system_fingerprint":null}
 
-			// 如果消息包含组件或嵌入，则发送停止信号
+			// 如果消息包含组件或嵌入,则发送停止信号
 			if len(m.Message.Components) > 0 {
 				replyOpenAIChan, exists := RepliesOpenAIChans[m.ReferencedMessage.ID]
 				if exists {
@@ -305,9 +304,9 @@ func SendMessage(c *gin.Context, channelID, cozeBotId, message string) (*discord
 	return sentMsg, nil
 }
 
-func ChannelCreate(guildID, channelName string) (string, error) {
+func ChannelCreate(guildID, channelName string, channelType int) (string, error) {
 	// 创建新的频道
-	st, err := Session.GuildChannelCreate(guildID, channelName, discordgo.ChannelTypeGuildText)
+	st, err := Session.GuildChannelCreate(guildID, channelName, discordgo.ChannelType(channelType))
 	if err != nil {
 		common.LogError(context.Background(), fmt.Sprintf("创建频道时异常 %s", err.Error()))
 		return "", err
@@ -335,11 +334,11 @@ func ChannelDel(channelId string) (string, error) {
 	return st.ID, nil
 }
 
-func ChannelCreateComplex(guildID, parentId, channelName string) (string, error) {
+func ChannelCreateComplex(guildID, parentId, channelName string, channelType int) (string, error) {
 	// 创建新的子频道
 	st, err := Session.GuildChannelCreateComplex(guildID, discordgo.GuildChannelCreateData{
 		Name:     channelName,
-		Type:     discordgo.ChannelTypeGuildText,
+		Type:     discordgo.ChannelType(channelType),
 		ParentID: parentId,
 	})
 	if err != nil {
@@ -409,21 +408,28 @@ func scheduleDailyMessage() {
 		// 等待直到下一个间隔
 		time.Sleep(delay)
 
-		BotConfigList = append(BotConfigList, model.BotConfig{
+		var taskBotConfigs = BotConfigList
+
+		taskBotConfigs = append(taskBotConfigs, model.BotConfig{
 			ChannelId: ChannelId,
 			CozeBotId: CozeBotId,
 		})
 
-		botConfigs := model.FilterUniqueBotChannel(BotConfigList)
-		for _, config := range botConfigs {
+		taskBotConfigs = model.FilterUniqueBotChannel(taskBotConfigs)
 
-			_, err := SendMessage(nil, config.ChannelId, config.CozeBotId, "Hi!")
+		common.SysLog("CDP Scheduled Task Job Start!")
+
+		for _, config := range taskBotConfigs {
+			time.Sleep(5 * time.Second)
+			_, err := SendMessage(nil, config.ChannelId, config.CozeBotId, "CDP Scheduled Task Job Send Msg Success！")
 			if err != nil {
 				common.LogWarn(context.Background(), fmt.Sprintf("ChannelId{%s} BotId{%s} 活跃机器人任务消息发送异常!", config.ChannelId, config.CozeBotId))
 			} else {
 				common.LogInfo(context.Background(), fmt.Sprintf("ChannelId{%s} BotId{%s} 活跃机器人任务消息发送成功!", config.ChannelId, config.CozeBotId))
 			}
 		}
+
+		common.SysLog("CDP Scheduled Task Job End!")
 
 	}
 }
@@ -466,7 +472,7 @@ func UploadToDiscordAndGetURL(channelID string, base64Data string) (string, erro
 		return "", err
 	}
 
-	// 检查消息中是否包含附件，并获取 URL
+	// 检查消息中是否包含附件,并获取 URL
 	if len(message.Attachments) > 0 {
 		return message.Attachments[0].URL, nil
 	}
