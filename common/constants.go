@@ -2,16 +2,17 @@ package common
 
 import (
 	"os"
+	"strings"
 	"time"
 )
 
-var ProxySecret = os.Getenv("PROXY_SECRET")
+var ProxySecrets = strings.Split(os.Getenv("PROXY_SECRET"), ",")
 var RequestOutTime = os.Getenv("REQUEST_OUT_TIME")
 var StreamRequestOutTime = os.Getenv("STREAM_REQUEST_OUT_TIME")
 
 var DebugEnabled = os.Getenv("DEBUG") == "true"
 
-var Version = "v2.1.4" // this hard coding will be replaced automatically when building, no need to manually change
+var Version = "v3.2.3" // this hard coding will be replaced automatically when building, no need to manually change
 
 const (
 	RequestIdKey = "X-Request-Id"

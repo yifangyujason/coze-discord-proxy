@@ -178,7 +178,11 @@ func Obj2Bytes(obj interface{}) ([]byte, error) {
 // IsImageBase64 判断给定的字符串是否可能是 Base64 编码
 func IsImageBase64(s string) bool {
 	// 检查字符串是否符合数据URL的格式
-	if !strings.HasPrefix(s, "data:image/") || !strings.Contains(s, ";base64,") {
+	//if !strings.HasPrefix(s, "data:image/") || !strings.Contains(s, ";base64,") {
+	//	return false
+	//}
+
+	if !strings.Contains(s, ";base64,") {
 		return false
 	}
 
@@ -222,4 +226,22 @@ func RandomElement[T any](slice []T) (T, error) {
 	// 随机选择一个索引
 	index := rand.Intn(len(slice))
 	return slice[index], nil
+}
+
+func ReverseSegment(s string, segLen int) []string {
+	var result []string
+	runeSlice := []rune(s) // 将字符串转换为rune切片，以正确处理多字节字符
+
+	// 从字符串末尾开始切片
+	for i := len(runeSlice); i > 0; i -= segLen {
+		// 检查是否到达或超过字符串开始
+		if i-segLen < 0 {
+			// 如果超过，直接从字符串开始到当前位置的所有字符都添加到结果切片中
+			result = append([]string{string(runeSlice[0:i])}, result...)
+		} else {
+			// 否则，从i-segLen到当前位置的子切片添加到结果切片中
+			result = append([]string{string(runeSlice[i-segLen : i])}, result...)
+		}
+	}
+	return result
 }
