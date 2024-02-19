@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -231,6 +232,12 @@ func ChatForOpenAI(c *gin.Context) {
 			select {
 			case reply := <-replyChan:
 				timerReset(c, request.Stream, timer, common.RequestOutTimeDuration)
+
+				_, _ = fmt.Fprintf(gin.DefaultWriter, "Received response: %+v\n", reply)
+				// 确保 response 是 OpenAIChatCompletionResponse 类型
+				if !reflect.TypeOf(reply).AssignableTo(reflect.TypeOf(model.OpenAIChatCompletionResponse{})) {
+					common.LogError(c.Request.Context(), "响应类型错误：")
+				}
 
 				// TODO 多张图片问题
 				if !strings.HasPrefix(reply.Choices[0].Message.Content, strLen) {
