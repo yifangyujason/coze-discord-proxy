@@ -233,9 +233,9 @@ func ChatForOpenAI(c *gin.Context) {
 			case reply := <-replyChan:
 				timerReset(c, request.Stream, timer, common.RequestOutTimeDuration)
 
-				_, _ = fmt.Fprintf(gin.DefaultWriter, "Received response: %+v\n", reply)
 				// 确保 response 是 OpenAIChatCompletionResponse 类型
 				if !reflect.TypeOf(reply).AssignableTo(reflect.TypeOf(model.OpenAIChatCompletionResponse{})) {
+					_, _ = fmt.Fprintf(gin.DefaultWriter, "Received response: %+v\n", reply)
 					common.LogError(c.Request.Context(), "响应类型错误：")
 				}
 
