@@ -38,4 +38,4 @@ var (
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute
 
-var RequestOutTimeDuration = 1 * time.Minute
+var RequestOutTimeDuration = 30 * time.Second

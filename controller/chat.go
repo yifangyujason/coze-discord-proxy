@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
-	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -225,19 +224,13 @@ func ChatForOpenAI(c *gin.Context) {
 		})
 		return
 	}
-
+	common.SysLog("开始等待响应" + sentMsg.ID)
 	if request.Stream {
 		strLen := ""
 		c.Stream(func(w io.Writer) bool {
 			select {
 			case reply := <-replyChan:
 				timerReset(c, request.Stream, timer, common.RequestOutTimeDuration)
-
-				// 确保 response 是 OpenAIChatCompletionResponse 类型
-				if !reflect.TypeOf(reply).AssignableTo(reflect.TypeOf(model.OpenAIChatCompletionResponse{})) {
-					_, _ = fmt.Fprintf(gin.DefaultWriter, "Received response: %+v\n", reply)
-					common.LogError(c.Request.Context(), "响应类型错误：")
-				}
 
 				// TODO 多张图片问题
 				if !strings.HasPrefix(reply.Choices[0].Message.Content, strLen) {
