@@ -41,7 +41,7 @@ jobs:
           context: .
           platforms: ${{ env.PLATFORMS }}
           push: true
-          tags: ${{ github.actor }}/coze-discord-proxy
+          tags: ${{ github.actor }}/coze-discord-proxy:main
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
 
