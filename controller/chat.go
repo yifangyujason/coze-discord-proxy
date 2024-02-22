@@ -221,7 +221,7 @@ func ChatForOpenAI(c *gin.Context) {
 	discord.RepliesOpenAIChans[sentMsg.ID] = replyChan
 	defer delete(discord.RepliesOpenAIChans, sentMsg.ID)
 
-	stopChan := make(chan model.ChannelStopChan)
+	stopChan := make(chan string)
 	discord.ReplyStopChans[sentMsg.ID] = stopChan
 	defer delete(discord.ReplyStopChans, sentMsg.ID)
 
@@ -400,7 +400,7 @@ func ImagesForOpenAI(c *gin.Context) {
 	discord.RepliesOpenAIImageChans[sentMsg.ID] = replyChan
 	defer delete(discord.RepliesOpenAIImageChans, sentMsg.ID)
 
-	stopChan := make(chan model.ChannelStopChan)
+	stopChan := make(chan string)
 	discord.ReplyStopChans[sentMsg.ID] = stopChan
 	defer delete(discord.ReplyStopChans, sentMsg.ID)
 

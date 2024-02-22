@@ -42,7 +42,7 @@ var RepliesChans = make(map[string]chan model.ReplyResp)
 var RepliesOpenAIChans = make(map[string]chan model.OpenAIChatCompletionResponse)
 var RepliesOpenAIImageChans = make(map[string]chan model.OpenAIImagesGenerationResponse)
 
-var ReplyStopChans = make(map[string]chan model.ChannelStopChan)
+var ReplyStopChans = make(map[string]chan string)
 var Session *discordgo.Session
 
 func StartBot(ctx context.Context, token string) {
@@ -178,9 +178,10 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	// 如果作者为 nil 或消息来自 bot 本身,则发送停止信号
 	if m.Author == nil || m.Author.ID == s.State.User.ID {
 		//SetChannelDeleteTimer(m.ChannelID, 5*time.Minute)
-		stopChan <- model.ChannelStopChan{
+		/*stopChan <- model.ChannelStopChan{
 			Id: m.ChannelID,
-		}
+		}*/
+		stopChan <- m.ReferencedMessage.ID
 		return
 	}
 
@@ -230,10 +231,11 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 		} else {
 			// 删除该频道
 			SetChannelDeleteTimer(m.ChannelID, 5*time.Second)
-		}*/
-		stopChan <- model.ChannelStopChan{
+		}stopChan <- model.ChannelStopChan{
 			Id: m.ChannelID,
-		}
+		}*/
+
+		stopChan <- m.ReferencedMessage.ID
 	}
 
 	return
