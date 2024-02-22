@@ -482,14 +482,14 @@ func getSendChannelIdAndCozeBotId(c *gin.Context, model string, isOpenAIAPI bool
 		// 没有值抛出异常
 		return "", "", fmt.Errorf("secret匹配不到有效bot")
 	} else {
-		channelCreateId, _ := discord.ChannelCreate(discord.GuildId, fmt.Sprintf("对话%s", c.Request.Context().Value(common.RequestIdKey)), 0)
+		//channelCreateId, _ := discord.ChannelCreate(discord.GuildId, fmt.Sprintf("对话%s", c.Request.Context().Value(common.RequestIdKey)), 0)
 
-		channelId := request.GetChannelId()
-		if channelId == nil || *channelId == "" {
-			channelId = &discord.ChannelId
+		channelCreateId := request.GetChannelId()
+		if channelCreateId == nil || *channelCreateId == "" {
+			channelCreateId = &discord.ChannelId
 		}
-		discord.SetChannelDeleteTimer(channelCreateId, 5*time.Minute)
-		return channelCreateId, discord.CozeBotId, nil
+		discord.SetChannelDeleteTimer(*channelCreateId, 5*time.Minute)
+		return *channelCreateId, discord.CozeBotId, nil
 	}
 }
 
