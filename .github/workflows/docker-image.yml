@@ -3,7 +3,7 @@ name: Docker build and push
 on:
   push:
     branches:
-      - 'release'
+      - 'main'
 
 env:
   PLATFORMS: ${{ vars.PLATFORMS || 'linux/amd64' }}
@@ -60,6 +60,6 @@ jobs:
           context: .
           platforms: ${{ env.PLATFORMS }}
           push: true
-          tags: ghcr.io/${{ github.actor }}/coze-discord-proxy
+          tags: ghcr.io/${{ github.actor }}/coze-discord-proxy:main
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
