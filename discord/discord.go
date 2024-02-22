@@ -32,6 +32,9 @@ var ChannelId = os.Getenv("CHANNEL_ID")
 var ProxyUrl = os.Getenv("PROXY_URL")
 var ChannelAutoDelTime = os.Getenv("CHANNEL_AUTO_DEL_TIME")
 var CozeBotStayActiveEnable = os.Getenv("COZE_BOT_STAY_ACTIVE_ENABLE")
+var UserAgent = os.Getenv("USER_AGENT")
+var UserAuthorization = os.Getenv("USER_AUTHORIZATION")
+var UserId = os.Getenv("USER_ID")
 
 var BotConfigList []model.BotConfig
 
@@ -93,6 +96,12 @@ func StartBot(ctx context.Context, token string) {
 }
 
 func checkEnvVariable() {
+	if UserAuthorization == "" {
+		common.FatalLog("环境变量 USER_AUTHORIZATION 未设置")
+	}
+	if UserId == "" {
+		common.FatalLog("环境变量 USER_ID 未设置")
+	}
 	if BotToken == "" {
 		common.FatalLog("环境变量 BOT_TOKEN 未设置")
 	}
@@ -176,60 +185,60 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	}
 
 	// 检查消息是否是对 bot 的回复
-	for _, mention := range m.Mentions {
-		if mention.ID == s.State.User.ID {
-			replyChan, exists := RepliesChans[m.ReferencedMessage.ID]
+	//for _, mention := range m.Mentions {
+	//if mention.ID == UserId {
+	replyChan, exists := RepliesChans[m.ReferencedMessage.ID]
+	if exists {
+		reply := processMessage(m)
+		replyChan <- reply
+	} else {
+		replyOpenAIChan, exists := RepliesOpenAIChans[m.ReferencedMessage.ID]
+		if exists {
+			reply := processMessageForOpenAI(m)
+			replyOpenAIChan <- reply
+		} else {
+			replyOpenAIImageChan, exists := RepliesOpenAIImageChans[m.ReferencedMessage.ID]
 			if exists {
-				reply := processMessage(m)
-				replyChan <- reply
+				reply := processMessageForOpenAIImage(m)
+				replyOpenAIImageChan <- reply
 			} else {
-				replyOpenAIChan, exists := RepliesOpenAIChans[m.ReferencedMessage.ID]
-				if exists {
-					reply := processMessageForOpenAI(m)
-					replyOpenAIChan <- reply
-				} else {
-					replyOpenAIImageChan, exists := RepliesOpenAIImageChans[m.ReferencedMessage.ID]
-					if exists {
-						reply := processMessageForOpenAIImage(m)
-						replyOpenAIImageChan <- reply
-					} else {
-						return
-					}
-				}
+				return
 			}
-			// data: {"id":"chatcmpl-8lho2xvdDFyBdFkRwWAcMpWWAgymJ","object":"chat.completion.chunk","created":1706380498,"model":"gpt-4-turbo-0613","system_fingerprint":null,"choices":[{"index":0,"delta":{"content":"？"},"logprobs":null,"finish_reason":null}]}
-			// data :{"id":"1200873365351698694","object":"chat.completion.chunk","created":1706380922,"model":"COZE","choices":[{"index":0,"message":{"role":"assistant","content":"你好！有什么我可以帮您的吗？如果有任"},"logprobs":null,"finish_reason":"","delta":{"content":"吗？如果有任"}}],"usage":{"prompt_tokens":13,"completion_tokens":19,"total_tokens":32},"system_fingerprint":null}
-
-			// 如果消息包含组件或嵌入,则发送停止信号
-			if len(m.Message.Components) > 0 {
-				replyOpenAIChan, exists := RepliesOpenAIChans[m.ReferencedMessage.ID]
-				if exists {
-					reply := processMessageForOpenAI(m)
-					stopStr := "stop"
-					reply.Choices[0].FinishReason = &stopStr
-					replyOpenAIChan <- reply
-				}
-
-				if ChannelAutoDelTime != "" {
-					delTime, _ := strconv.Atoi(ChannelAutoDelTime)
-					if delTime == 0 {
-						CancelChannelDeleteTimer(m.ChannelID)
-					} else if delTime > 0 {
-						// 删除该频道
-						SetChannelDeleteTimer(m.ChannelID, time.Duration(delTime)*time.Second)
-					}
-				} else {
-					// 删除该频道
-					SetChannelDeleteTimer(m.ChannelID, 5*time.Second)
-				}
-				stopChan <- model.ChannelStopChan{
-					Id: m.ChannelID,
-				}
-			}
-
-			return
 		}
 	}
+	// data: {"id":"chatcmpl-8lho2xvdDFyBdFkRwWAcMpWWAgymJ","object":"chat.completion.chunk","created":1706380498,"model":"gpt-4-turbo-0613","system_fingerprint":null,"choices":[{"index":0,"delta":{"content":"？"},"logprobs":null,"finish_reason":null}]}
+	// data :{"id":"1200873365351698694","object":"chat.completion.chunk","created":1706380922,"model":"COZE","choices":[{"index":0,"message":{"role":"assistant","content":"你好！有什么我可以帮您的吗？如果有任"},"logprobs":null,"finish_reason":"","delta":{"content":"吗？如果有任"}}],"usage":{"prompt_tokens":13,"completion_tokens":19,"total_tokens":32},"system_fingerprint":null}
+
+	// 如果消息包含组件或嵌入,则发送停止信号
+	if len(m.Message.Components) > 0 {
+		replyOpenAIChan, exists := RepliesOpenAIChans[m.ReferencedMessage.ID]
+		if exists {
+			reply := processMessageForOpenAI(m)
+			stopStr := "stop"
+			reply.Choices[0].FinishReason = &stopStr
+			replyOpenAIChan <- reply
+		}
+
+		if ChannelAutoDelTime != "" {
+			delTime, _ := strconv.Atoi(ChannelAutoDelTime)
+			if delTime == 0 {
+				CancelChannelDeleteTimer(m.ChannelID)
+			} else if delTime > 0 {
+				// 删除该频道
+				SetChannelDeleteTimer(m.ChannelID, time.Duration(delTime)*time.Second)
+			}
+		} else {
+			// 删除该频道
+			SetChannelDeleteTimer(m.ChannelID, 5*time.Second)
+		}
+		stopChan <- model.ChannelStopChan{
+			Id: m.ChannelID,
+		}
+	}
+
+	return
+	//}
+	//}
 }
 
 // processMessage 提取并处理消息内容及其嵌入元素
@@ -329,7 +338,7 @@ func SendMessage(c *gin.Context, channelID, cozeBotId, message string) (*discord
 		return nil, fmt.Errorf("discord session not initialized")
 	}
 
-	var sentMsg *discordgo.Message
+	//var sentMsg *discordgo.Message
 
 	content := fmt.Sprintf("%s <@%s>", message, cozeBotId)
 
@@ -341,17 +350,22 @@ func SendMessage(c *gin.Context, channelID, cozeBotId, message string) (*discord
 	// 特殊处理
 	content = strings.ReplaceAll(content, "\\n", " \\n ")
 
-	for i, msg := range common.ReverseSegment(content, 2000) {
-		sentMsg, err := Session.ChannelMessageSend(channelID, msg)
+	for i, sendContent := range common.ReverseSegment(content, 2000) {
+		//sentMsg, err := Session.ChannelMessageSend(channelID, msg)
+
+		// 4.0.0 版本下 用户端发送消息
+		sentMsgId, err := SendMsgByAuthorization(sendContent, channelID)
 		if err != nil {
 			common.LogError(ctx, fmt.Sprintf("error sending message: %s", err))
 			return nil, fmt.Errorf("error sending message")
 		}
 		if i == len(common.ReverseSegment(content, 2000))-1 {
-			return sentMsg, nil
+			return &discordgo.Message{
+				ID: sentMsgId,
+			}, nil
 		}
 	}
-	return sentMsg, nil
+	return &discordgo.Message{}, fmt.Errorf("error sending message")
 }
 
 func ChannelCreate(guildID, channelName string, channelType int) (string, error) {
