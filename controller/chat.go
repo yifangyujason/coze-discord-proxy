@@ -488,7 +488,7 @@ func getSendChannelIdAndCozeBotId(c *gin.Context, model string, isOpenAIAPI bool
 		if channelCreateId == nil || *channelCreateId == "" {
 			channelCreateId = &discord.ChannelId
 		}
-		discord.SetChannelDeleteTimer(*channelCreateId, 5*time.Minute)
+		//discord.SetChannelDeleteTimer(*channelCreateId, 5*time.Minute)
 		return *channelCreateId, discord.CozeBotId, nil
 	}
 }

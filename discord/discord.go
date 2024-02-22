@@ -171,13 +171,13 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	stopChan, exists := ReplyStopChans[m.ReferencedMessage.ID]
 	if !exists {
 		// 不存在则直接删除频道
-		SetChannelDeleteTimer(m.ChannelID, 5*time.Minute)
+		//SetChannelDeleteTimer(m.ChannelID, 5*time.Minute)
 		return
 	}
 
 	// 如果作者为 nil 或消息来自 bot 本身,则发送停止信号
 	if m.Author == nil || m.Author.ID == s.State.User.ID {
-		SetChannelDeleteTimer(m.ChannelID, 5*time.Minute)
+		//SetChannelDeleteTimer(m.ChannelID, 5*time.Minute)
 		stopChan <- model.ChannelStopChan{
 			Id: m.ChannelID,
 		}
@@ -219,7 +219,7 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 			replyOpenAIChan <- reply
 		}
 
-		if ChannelAutoDelTime != "" {
+		/*if ChannelAutoDelTime != "" {
 			delTime, _ := strconv.Atoi(ChannelAutoDelTime)
 			if delTime == 0 {
 				CancelChannelDeleteTimer(m.ChannelID)
@@ -230,7 +230,7 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 		} else {
 			// 删除该频道
 			SetChannelDeleteTimer(m.ChannelID, 5*time.Second)
-		}
+		}*/
 		stopChan <- model.ChannelStopChan{
 			Id: m.ChannelID,
 		}
