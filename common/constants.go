@@ -12,7 +12,7 @@ var StreamRequestOutTime = os.Getenv("STREAM_REQUEST_OUT_TIME")
 
 var DebugEnabled = os.Getenv("DEBUG") == "true"
 
-var Version = "v4.0.7" // this hard coding will be replaced automatically when building, no need to manually change
+var Version = "v4.0.8" // this hard coding will be replaced automatically when building, no need to manually change
 
 const (
 	RequestIdKey = "X-Request-Id"
@@ -39,4 +39,6 @@ var (
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute
 
-var RequestOutTimeDuration = 1 * time.Minute
+var RequestOutTimeDuration = 5 * time.Minute
+
+var CozeErrorMsg = "Something wrong occurs, please retry. If the error persists, please contact the support team."

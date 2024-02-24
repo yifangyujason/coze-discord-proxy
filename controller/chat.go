@@ -261,6 +261,13 @@ func ChatForOpenAI(c *gin.Context) {
 				reply.Object = "chat.completion.chunk"
 				bytes, _ := common.Obj2Bytes(reply)
 				c.SSEvent("", " "+string(bytes))
+
+				if reply.Choices[0].Message.Content == common.CozeErrorMsg {
+					common.LogError(c.Request.Context(), common.CozeErrorMsg)
+					c.SSEvent("", " [DONE]")
+					return false // 关闭流式连接
+				}
+
 				return true // 继续保持流式连接
 			case <-timer.C:
 				// 定时器到期时,关闭流
