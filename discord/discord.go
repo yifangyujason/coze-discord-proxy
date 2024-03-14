@@ -361,7 +361,7 @@ func SendMessage(c *gin.Context, channelID, cozeBotId, message string) (*discord
 			common.LogError(ctx, fmt.Sprintf("error sending message: %s", err))
 			return nil, fmt.Errorf("error sending message")
 		}
-		if i == len(common.ReverseSegment(content, 2000))-1 {
+		if i == len(common.ReverseSegment(content, 1888))-1 {
 			return &discordgo.Message{
 				ID: sentMsgId,
 			}, nil
