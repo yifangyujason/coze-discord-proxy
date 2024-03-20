@@ -490,7 +490,7 @@ func getSendChannelIdAndCozeBotId(c *gin.Context, model string, isOpenAIAPI bool
 			//sendChannelId, _ = discord.ChannelCreate(discord.GuildId, fmt.Sprintf("对话%s", c.Request.Context().Value(common.RequestIdKey)), 0)
 			//discord.SetChannelDeleteTimer(sendChannelId, 5*time.Minute)
 			//没有找到则使用默认的
-			return *channelCreateId, botConfig.CozeBotId, nil
+			return *channelCreateId, discord.CozeBotId, nil
 		}
 		// 使用原来的
 		return *channelCreateId, discord.CozeBotId, nil
