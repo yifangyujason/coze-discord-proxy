@@ -560,10 +560,10 @@ func UploadToDiscordAndGetURL(channelID string, base64Data string) (string, erro
 func FilterConfigs(configs []model.BotConfig, secret, gptModel string, channelId *string) []model.BotConfig {
 	var filteredConfigs []model.BotConfig
 	for _, config := range configs {
-		matchSecret := secret == "" || config.ProxySecret == secret
+		//matchSecret := secret == "" || config.ProxySecret == secret
 		matchGptModel := gptModel == "" || config.Model == gptModel
-		matchChannelId := channelId == nil || *channelId == "" || config.ChannelId == *channelId
-		if matchSecret && matchChannelId && matchGptModel {
+		//matchChannelId := channelId == nil || *channelId == "" || config.ChannelId == *channelId
+		if matchGptModel {
 			filteredConfigs = append(filteredConfigs, config)
 		}
 	}

@@ -150,7 +150,7 @@ func ChatForOpenAI(c *gin.Context) {
 	}
 
 	sendChannelId, calledCozeBotId, err := getSendChannelIdAndCozeBotId(c, request.Model, true, request)
-
+	common.SysLog("发送的机器人id:" + calledCozeBotId)
 	content := "Hi！"
 	messages := request.Messages
 
@@ -471,6 +471,11 @@ func getSendChannelIdAndCozeBotId(c *gin.Context, model string, isOpenAIAPI bool
 	//	}
 	//}
 
+	channelCreateId := request.GetChannelId()
+	if channelCreateId == nil || *channelCreateId == "" {
+		channelCreateId = &discord.ChannelId
+	}
+
 	// botConfigs不为空
 	if len(discord.BotConfigList) != 0 {
 
@@ -481,20 +486,15 @@ func getSendChannelIdAndCozeBotId(c *gin.Context, model string, isOpenAIAPI bool
 			if err != nil {
 				return "", "", err
 			}
-			var sendChannelId string
-			sendChannelId, _ = discord.ChannelCreate(discord.GuildId, fmt.Sprintf("对话%s", c.Request.Context().Value(common.RequestIdKey)), 0)
-			discord.SetChannelDeleteTimer(sendChannelId, 5*time.Minute)
-			return sendChannelId, botConfig.CozeBotId, nil
+			//var sendChannelId string
+			//sendChannelId, _ = discord.ChannelCreate(discord.GuildId, fmt.Sprintf("对话%s", c.Request.Context().Value(common.RequestIdKey)), 0)
+			//discord.SetChannelDeleteTimer(sendChannelId, 5*time.Minute)
+			return *channelCreateId, botConfig.CozeBotId, nil
 		}
 		// 没有值抛出异常
 		return "", "", fmt.Errorf("secret匹配不到有效bot")
 	} else {
 		//channelCreateId, _ := discord.ChannelCreate(discord.GuildId, fmt.Sprintf("对话%s", c.Request.Context().Value(common.RequestIdKey)), 0)
-
-		channelCreateId := request.GetChannelId()
-		if channelCreateId == nil || *channelCreateId == "" {
-			channelCreateId = &discord.ChannelId
-		}
 		//discord.SetChannelDeleteTimer(*channelCreateId, 5*time.Minute)
 		return *channelCreateId, discord.CozeBotId, nil
 	}
