@@ -491,8 +491,8 @@ func getSendChannelIdAndCozeBotId(c *gin.Context, model string, isOpenAIAPI bool
 			//discord.SetChannelDeleteTimer(sendChannelId, 5*time.Minute)
 			return *channelCreateId, botConfig.CozeBotId, nil
 		}
-		// 没有值抛出异常
-		return "", "", fmt.Errorf("secret匹配不到有效bot")
+		// 使用原来的
+		return *channelCreateId, discord.CozeBotId, nil
 	} else {
 		//channelCreateId, _ := discord.ChannelCreate(discord.GuildId, fmt.Sprintf("对话%s", c.Request.Context().Value(common.RequestIdKey)), 0)
 		//discord.SetChannelDeleteTimer(*channelCreateId, 5*time.Minute)
