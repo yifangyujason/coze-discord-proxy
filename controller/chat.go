@@ -482,15 +482,14 @@ func getSendChannelIdAndCozeBotId(c *gin.Context, model string, isOpenAIAPI bool
 		botConfigs := discord.FilterConfigs(discord.BotConfigList, secret, model, nil)
 		if len(botConfigs) != 0 {
 			// 有值则随机一个
-			//botConfig, err := common.RandomElement(botConfigs)
-			//if err != nil {
-			//return "", "", err
-			//}
+			botConfig, err := common.RandomElement(botConfigs)
+			if err != nil {
+				return "", "", err
+			}
 			//var sendChannelId string
 			//sendChannelId, _ = discord.ChannelCreate(discord.GuildId, fmt.Sprintf("对话%s", c.Request.Context().Value(common.RequestIdKey)), 0)
 			//discord.SetChannelDeleteTimer(sendChannelId, 5*time.Minute)
-			//没有找到则使用默认的
-			return *channelCreateId, discord.CozeBotId, nil
+			return *channelCreateId, botConfig.CozeBotId, nil
 		}
 		// 使用原来的
 		return *channelCreateId, discord.CozeBotId, nil
