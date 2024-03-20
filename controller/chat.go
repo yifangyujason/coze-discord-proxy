@@ -262,8 +262,12 @@ func ChatForOpenAI(c *gin.Context) {
 				bytes, _ := common.Obj2Bytes(reply)
 				c.SSEvent("", " "+string(bytes))
 
-				if reply.Choices[0].Message.Content == common.CozeErrorMsg {
-					common.LogError(c.Request.Context(), common.CozeErrorMsg)
+				if common.SliceContains(common.CozeErrorMessages, reply.Choices[0].Message.Content) {
+					if common.SliceContains(common.CozeDailyLimitErrorMessages, reply.Choices[0].Message.Content) {
+						common.LogWarn(c, fmt.Sprintf("USER_AUTHORIZATION: DAILY LIMIT"))
+					}
+					common.LogWarn(c, reply.Choices[0].Message.Content)
+					//discord.SetChannelDeleteTimer(sendChannelId, 5*time.Second)
 					c.SSEvent("", " [DONE]")
 					return false // 关闭流式连接
 				}
