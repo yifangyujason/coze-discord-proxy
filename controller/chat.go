@@ -262,7 +262,7 @@ func ChatForOpenAI(c *gin.Context) {
 				bytes, _ := common.Obj2Bytes(reply)
 				c.SSEvent("", " "+string(bytes))
 
-				common.SysLog("响应信息:" + reply.Choices[0].Message.Content)
+				common.SysLog("响应信息:" + reply)
 				if common.SliceContains(common.CozeErrorMessages, reply.Choices[0].Message.Content) {
 					if common.SliceContains(common.CozeDailyLimitErrorMessages, reply.Choices[0].Message.Content) {
 						common.LogWarn(c, fmt.Sprintf("USER_AUTHORIZATION: DAILY LIMIT"))
