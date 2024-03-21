@@ -64,6 +64,7 @@ func StartBot(ctx context.Context, token string) {
 		common.SysLog("Proxy Set Success!")
 	}
 	// 注册消息处理函数
+	Session.AddHandler(messageCreate)
 	Session.AddHandler(messageUpdate)
 
 	// 打开websocket连接并开始监听
@@ -158,6 +159,85 @@ func loadBotConfig() {
 	}
 
 	common.LogInfo(context.Background(), fmt.Sprintf("载入配置文件成功 BotConfigs: %+v", BotConfigList))
+}
+
+// messageCreate handles the create messages in Discord.
+func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	// 提前检查参考消息是否为 nil
+	if m.ReferencedMessage == nil {
+		return
+	}
+
+	// 尝试获取 stopChan
+	stopChan, exists := ReplyStopChans[m.ReferencedMessage.ID]
+	if !exists {
+		//channel, err := Session.Channel(m.ChannelID)
+		// 不存在则直接删除频道
+		//if err != nil || strings.HasPrefix(channel.Name, "cdp-对话") {
+		//SetChannelDeleteTimer(m.ChannelID, 5*time.Minute)
+		return
+		//}
+	}
+
+	// 如果作者为 nil 或消息来自 bot 本身,则发送停止信号
+	if m.Author == nil || m.Author.ID == s.State.User.ID {
+		//SetChannelDeleteTimer(m.ChannelID, 5*time.Minute)
+		stopChan <- model.ChannelStopChan{
+			Id: m.ChannelID,
+		}
+		return
+	}
+
+	replyChan, exists := RepliesChans[m.ReferencedMessage.ID]
+	if exists {
+		reply := processMessageCreate(m)
+		replyChan <- reply
+	} else {
+		replyOpenAIChan, exists := RepliesOpenAIChans[m.ReferencedMessage.ID]
+		if exists {
+			reply := processMessageCreateForOpenAI(m)
+			replyOpenAIChan <- reply
+		} else {
+			replyOpenAIImageChan, exists := RepliesOpenAIImageChans[m.ReferencedMessage.ID]
+			if exists {
+				reply := processMessageCreateForOpenAIImage(m)
+				replyOpenAIImageChan <- reply
+			} else {
+				return
+			}
+		}
+	}
+	// data: {"id":"chatcmpl-8lho2xvdDFyBdFkRwWAcMpWWAgymJ","object":"chat.completion.chunk","created":1706380498,"model":"gpt-4-turbo-0613","system_fingerprint":null,"choices":[{"index":0,"delta":{"content":"？"},"logprobs":null,"finish_reason":null}]}
+	// data :{"id":"1200873365351698694","object":"chat.completion.chunk","created":1706380922,"model":"COZE","choices":[{"index":0,"message":{"role":"assistant","content":"你好！有什么我可以帮您的吗？如果有任"},"logprobs":null,"finish_reason":"","delta":{"content":"吗？如果有任"}}],"usage":{"prompt_tokens":13,"completion_tokens":19,"total_tokens":32},"system_fingerprint":null}
+
+	// 如果消息包含组件或嵌入,则发送停止信号
+	if len(m.Message.Components) > 0 {
+		replyOpenAIChan, exists := RepliesOpenAIChans[m.ReferencedMessage.ID]
+		if exists {
+			reply := processMessageCreateForOpenAI(m)
+			stopStr := "stop"
+			reply.Choices[0].FinishReason = &stopStr
+			replyOpenAIChan <- reply
+		}
+
+		//if ChannelAutoDelTime != "" {
+		//	delTime, _ := strconv.Atoi(ChannelAutoDelTime)
+		//	if delTime == 0 {
+		//		CancelChannelDeleteTimer(m.ChannelID)
+		//	} else if delTime > 0 {
+		//		// 删除该频道
+		//		SetChannelDeleteTimer(m.ChannelID, time.Duration(delTime)*time.Second)
+		//	}
+		//} else {
+		//	// 删除该频道
+		//	SetChannelDeleteTimer(m.ChannelID, 5*time.Second)
+		//}
+		stopChan <- model.ChannelStopChan{
+			Id: m.ChannelID,
+		}
+	}
+
+	return
 }
 
 // messageUpdate handles the updated messages in Discord.

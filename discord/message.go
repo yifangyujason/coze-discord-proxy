@@ -2,6 +2,7 @@ package discord
 
 import (
 	"bytes"
+	"context"
 	"coze-discord-proxy/common"
 	"encoding/json"
 	"fmt"
@@ -21,13 +22,13 @@ func SendMsgByAuthorization(c *gin.Context, content, channelId string) (string, 
 		"content": content,
 	})
 	if err != nil {
-		fmt.Println("Error encoding request body:", err)
+		common.LogError(ctx, fmt.Sprintf("Error encoding request body:%s", err))
 		return "", err
 	}
 
 	req, err := http.NewRequest("POST", fmt.Sprintf(postUrl, channelId), bytes.NewBuffer(requestBody))
 	if err != nil {
-		fmt.Println("Error creating request:", err)
+		common.LogError(ctx, fmt.Sprintf("Error creating request:%s", err))
 		return "", err
 	}
 
@@ -56,7 +57,7 @@ func SendMsgByAuthorization(c *gin.Context, content, channelId string) (string, 
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("Error sending request:", err)
+		common.LogError(ctx, fmt.Sprintf("Error sending request:%s", err))
 		return "", err
 	}
 	defer resp.Body.Close()
@@ -83,8 +84,20 @@ func SendMsgByAuthorization(c *gin.Context, content, channelId string) (string, 
 	id, ok := result["id"].(string)
 
 	if !ok {
-		common.LogError(c.Request.Context(), fmt.Sprintf("result:%s", bodyString))
-		return "", fmt.Errorf("ID is not a string")
+		// 401
+		if errMessage, ok := result["message"].(string); ok {
+			if strings.Contains(errMessage, "401: Unauthorized") ||
+				strings.Contains(errMessage, "You need to verify your account in order to perform this action.") {
+				common.LogWarn(ctx, fmt.Sprintf("USER_AUTHORIZATION:%s EXPIRED", userAuth))
+				return "", &common.DiscordUnauthorizedError{
+					ErrCode: 401,
+					Message: "discord 鉴权未通过",
+				}
+			}
+		}
+		common.LogError(ctx, fmt.Sprintf("user_auth:%s result:%s", userAuth, bodyString))
+		return "", fmt.Errorf("/api/v9/channels/%s/messages response err", channelId)
+	} else {
+		return id, nil
 	}
-	return id, nil
 }
