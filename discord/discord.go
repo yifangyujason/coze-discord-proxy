@@ -182,9 +182,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// 如果作者为 nil 或消息来自 bot 本身,则发送停止信号
 	if m.Author == nil || m.Author.ID == s.State.User.ID {
 		//SetChannelDeleteTimer(m.ChannelID, 5*time.Minute)
-		stopChan <- model.ChannelStopChan{
+		/*stopChan <- model.ChannelStopChan{
 			Id: m.ChannelID,
-		}
+		}*/
+		stopChan <- m.ReferencedMessage.ID
 		return
 	}
 
@@ -232,9 +233,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		//	// 删除该频道
 		//	SetChannelDeleteTimer(m.ChannelID, 5*time.Second)
 		//}
-		stopChan <- model.ChannelStopChan{
+		/*stopChan <- model.ChannelStopChan{
 			Id: m.ChannelID,
-		}
+		}*/
+		stopChan <- m.ReferencedMessage.ID
 	}
 
 	return
