@@ -190,17 +190,17 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	//if mention.ID == UserId {
 	replyChan, exists := RepliesChans[m.ReferencedMessage.ID]
 	if exists {
-		reply := processMessage(m)
+		reply := processMessageUpdate(m)
 		replyChan <- reply
 	} else {
 		replyOpenAIChan, exists := RepliesOpenAIChans[m.ReferencedMessage.ID]
 		if exists {
-			reply := processMessageForOpenAI(m)
+			reply := processMessageUpdateForOpenAI(m)
 			replyOpenAIChan <- reply
 		} else {
 			replyOpenAIImageChan, exists := RepliesOpenAIImageChans[m.ReferencedMessage.ID]
 			if exists {
-				reply := processMessageForOpenAIImage(m)
+				reply := processMessageUpdateForOpenAIImage(m)
 				replyOpenAIImageChan <- reply
 			} else {
 				return
@@ -214,7 +214,7 @@ func messageUpdate(s *discordgo.Session, m *discordgo.MessageUpdate) {
 	if len(m.Message.Components) > 0 {
 		replyOpenAIChan, exists := RepliesOpenAIChans[m.ReferencedMessage.ID]
 		if exists {
-			reply := processMessageForOpenAI(m)
+			reply := processMessageUpdateForOpenAI(m)
 			stopStr := "stop"
 			reply.Choices[0].FinishReason = &stopStr
 			replyOpenAIChan <- reply
