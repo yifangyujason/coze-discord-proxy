@@ -282,7 +282,7 @@ func ChatForOpenAI(c *gin.Context) {
 						Code:    "model_response_timeout",
 					},
 				})
-				c.SSEvent("", " [DONE]")
+				//c.SSEvent("", " [DONE]")
 				return false
 			case <-stopChan:
 				c.SSEvent("", " [DONE]")
