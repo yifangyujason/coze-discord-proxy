@@ -150,7 +150,7 @@ func ChatForOpenAI(c *gin.Context) {
 	}
 
 	sendChannelId, calledCozeBotId, err := getSendChannelIdAndCozeBotId(c, request.Model, true, request)
-	common.SysLog("发送的机器人id:" + calledCozeBotId)
+	common.SysLog(fmt.Sprintf("模型：{%s}，发送的机器人id:{%s}", request.Model, calledCozeBotId))
 	content := "Hi！"
 	messages := request.Messages
 

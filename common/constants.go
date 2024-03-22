@@ -39,7 +39,7 @@ var (
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute
 
-var RequestOutTimeDuration = 5 * time.Minute
+var RequestOutTimeDuration = 1 * time.Minute
 
 var CozeErrorMsg = "Something wrong occurs, please retry. If the error persists, please contact the support team."
 
