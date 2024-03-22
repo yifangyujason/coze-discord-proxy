@@ -275,6 +275,13 @@ func ChatForOpenAI(c *gin.Context) {
 				return true // 继续保持流式连接
 			case <-timer.C:
 				// 定时器到期时,关闭流
+				c.JSON(http.StatusOK, model.OpenAIErrorResponse{
+					OpenAIError: model.OpenAIError{
+						Message: "模型响应超时",
+						Type:    "model_response_timeout",
+						Code:    "model_response_timeout",
+					},
+				})
 				c.SSEvent("", " [DONE]")
 				return false
 			case <-stopChan:
