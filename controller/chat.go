@@ -265,14 +265,14 @@ func ChatForOpenAI(c *gin.Context) {
 				if common.SliceContains(common.CozeErrorMessages, reply.Choices[0].Message.Content) {
 					if common.SliceContains(common.CozeDailyLimitErrorMessages, reply.Choices[0].Message.Content) {
 						common.LogWarn(c, fmt.Sprintf("USER_AUTHORIZATION: DAILY LIMIT"))
-						c.JSON(http.StatusOK, model.OpenAIErrorResponse{
-							OpenAIError: model.OpenAIError{
-								Message: reply.Choices[0].Message.Content,
-								Type:    "model_response_error",
-								Code:    "model_response_error",
-							},
-						})
-						return false
+						//c.JSON(http.StatusOK, model.OpenAIErrorResponse{
+						//	OpenAIError: model.OpenAIError{
+						//		Message: reply.Choices[0].Message.Content,
+						//		Type:    "model_response_error",
+						//		Code:    "model_response_error",
+						//	},
+						//})
+						//return false
 					}
 					common.LogWarn(c, reply.Choices[0].Message.Content)
 					c.JSON(http.StatusOK, model.OpenAIErrorResponse{
@@ -283,7 +283,7 @@ func ChatForOpenAI(c *gin.Context) {
 						},
 					})
 					//discord.SetChannelDeleteTimer(sendChannelId, 5*time.Second)
-					//c.SSEvent("", " [DONE]")
+					c.SSEvent("", " [DONE]")
 					return false // 关闭流式连接
 				}
 
