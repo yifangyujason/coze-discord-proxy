@@ -275,15 +275,12 @@ func ChatForOpenAI(c *gin.Context) {
 						//return false
 					}
 					common.LogWarn(c, "报错了："+reply.Choices[0].Message.Content)
-					c.JSON(http.StatusOK, model.OpenAIErrorResponse{
-						OpenAIError: model.OpenAIError{
-							Message: reply.Choices[0].Message.Content,
-							Type:    "model_response_error",
-							Code:    "model_response_error",
-						},
-					})
+					c.JSON(http.StatusBadRequest, gin.H{
+			                        "success": false,
+			                        "message": "报错异常",
+		}                       )
 					//discord.SetChannelDeleteTimer(sendChannelId, 5*time.Second)
-					//c.SSEvent("", " [DONE]")
+					c.SSEvent("", " [DONE]")
 					return false // 关闭流式连接
 				}
 
