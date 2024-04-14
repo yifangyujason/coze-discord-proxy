@@ -277,7 +277,7 @@ func ChatForOpenAI(c *gin.Context) {
 					common.LogWarn(c, "报错了："+reply.Choices[0].Message.Content)
 					c.JSON(http.StatusOK, model.OpenAIErrorResponse{
 						OpenAIError: model.OpenAIError{
-							Message: reply.Choices[0].Message.Content,
+							Message: "There are too many users now. Please try again a bit later",
 							Type:    "model_response_error",
 							Code:    "model_response_error",
 						},
