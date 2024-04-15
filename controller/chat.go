@@ -259,10 +259,14 @@ func ChatForOpenAI(c *gin.Context) {
 				strLen += newContent
 
 				reply.Object = "chat.completion.chunk"
+				var isErrorMessage bool = common.SliceContains(common.CozeErrorMessages, reply.Choices[0].Message.Content)
+				if isErrorMessage {
+					reply.Object = "chat.error"
+				}
 				bytes, _ := common.Obj2Bytes(reply)
 				c.SSEvent("", " "+string(bytes))
 
-				if common.SliceContains(common.CozeErrorMessages, reply.Choices[0].Message.Content) {
+				if isErrorMessage {
 					if common.SliceContains(common.CozeDailyLimitErrorMessages, reply.Choices[0].Message.Content) {
 						common.LogWarn(c, fmt.Sprintf("USER_AUTHORIZATION: DAILY LIMIT"))
 						//c.JSON(http.StatusOK, model.OpenAIErrorResponse{
@@ -275,13 +279,6 @@ func ChatForOpenAI(c *gin.Context) {
 						//return false
 					}
 					common.LogWarn(c, "报错了："+reply.Choices[0].Message.Content)
-					//c.JSON(http.StatusOK, model.OpenAIErrorResponse{
-					//	OpenAIError: model.OpenAIError{
-					//		Message: "There are too many users now. Please try again a bit later",
-					//		Type:    "model_response_error",
-					//		Code:    "model_response_error",
-					//	},
-					//})
 					//discord.SetChannelDeleteTimer(sendChannelId, 5*time.Second)
 					c.SSEvent("", " [DONE]")
 					return false // 关闭流式连接
