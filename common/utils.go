@@ -213,6 +213,15 @@ func SliceContains(slice []string, str string) bool {
 	return false
 }
 
+func Contains(slice []string, str string) bool {
+	for _, item := range slice {
+		if strings.Contains(str, item) {
+			return true
+		}
+	}
+	return false
+}
+
 // RandomElement 返回给定切片中的随机元素
 func RandomElement[T any](slice []T) (T, error) {
 	if len(slice) == 0 {

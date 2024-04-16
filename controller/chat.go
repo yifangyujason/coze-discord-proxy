@@ -225,7 +225,13 @@ func ChatForOpenAI(c *gin.Context) {
 	discord.ReplyStopChans[sentMsg.ID] = stopChan
 	defer delete(discord.ReplyStopChans, sentMsg.ID)
 
-	timer, err := setTimerWithHeader(c, request.Stream, common.RequestOutTimeDuration)
+	timeDuration := common.RequestOutTimeDuration
+	if common.Contains(common.CozeErrorMessages, content) {
+		timeDuration = 1 * time.Minute
+		common.SysLog(fmt.Sprintf("请求画图的，超时时间改为：{%s}", timeDuration))
+	}
+
+	timer, err := setTimerWithHeader(c, request.Stream, timeDuration)
 	if err != nil {
 		common.LogError(c.Request.Context(), err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -240,7 +246,7 @@ func ChatForOpenAI(c *gin.Context) {
 		c.Stream(func(w io.Writer) bool {
 			select {
 			case reply := <-replyChan:
-				timerReset(c, request.Stream, timer, common.RequestOutTimeDuration)
+				timerReset(c, request.Stream, timer, timeDuration)
 
 				// TODO 多张图片问题
 				if !strings.HasPrefix(reply.Choices[0].Message.Content, strLen) {
