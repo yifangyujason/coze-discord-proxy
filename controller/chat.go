@@ -226,7 +226,7 @@ func ChatForOpenAI(c *gin.Context) {
 	defer delete(discord.ReplyStopChans, sentMsg.ID)
 
 	timeDuration := common.RequestOutTimeDuration
-	if common.Contains(common.CozeErrorMessages, content) {
+	if common.Contains(common.DrawMessages, content) {
 		timeDuration = 1 * time.Minute
 		common.SysLog(fmt.Sprintf("请求画图的，超时时间改为：{%s}", timeDuration))
 	}
