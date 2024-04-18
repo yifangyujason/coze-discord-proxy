@@ -262,10 +262,11 @@ func ChatForOpenAI(c *gin.Context) {
 				}
 
 				newContent := strings.Replace(reply.Choices[0].Message.Content, strLen, "", 1)
+				common.SysLog(fmt.Sprintf("newContent响应信息：{%s}", newContent))
 				if newContent == "" && strings.HasSuffix(newContent, "[DONE]") {
 					return true
 				}
-				common.SysLog(fmt.Sprintf("newContent响应信息：{%s}", newContent))
+				//common.SysLog(fmt.Sprintf("newContent响应信息：{%s}", newContent))
 				reply.Choices[0].Delta.Content = newContent
 				strLen += newContent
 
