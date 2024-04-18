@@ -226,7 +226,8 @@ func ChatForOpenAI(c *gin.Context) {
 	defer delete(discord.ReplyStopChans, sentMsg.ID)
 
 	timeDuration := common.RequestOutTimeDuration
-	if common.Contains(common.DrawMessages, content) {
+	var isPic bool = common.Contains(common.DrawMessages, content)
+	if isPic {
 		timeDuration = 1 * time.Minute
 		common.SysLog(fmt.Sprintf("请求画图的，超时时间改为：{%s}", timeDuration))
 	}
@@ -293,9 +294,13 @@ func ChatForOpenAI(c *gin.Context) {
 				return true // 继续保持流式连接
 			case <-timer.C:
 				// 定时器到期时,关闭流
+				contentTimeOut := "模型响应超时"
+				if isPic {
+					contentTimeOut = "图片模型响应超时"
+				}
 				c.JSON(http.StatusOK, model.OpenAIErrorResponse{
 					OpenAIError: model.OpenAIError{
-						Message: "模型响应超时",
+						Message: contentTimeOut,
 						Type:    "model_response_timeout",
 						Code:    "model_response_timeout",
 					},
