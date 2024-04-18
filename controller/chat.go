@@ -251,7 +251,7 @@ func ChatForOpenAI(c *gin.Context) {
 			select {
 			case reply := <-replyChan:
 				timerReset(c, request.Stream, timer, timeDuration)
-
+				common.SysLog(fmt.Sprintf("响应信息：{%s}", reply.Choices[0].Message.Content))
 				// TODO 多张图片问题
 				if !strings.HasPrefix(reply.Choices[0].Message.Content, strLen) {
 					if len(strLen) > 3 && strings.HasPrefix(reply.Choices[0].Message.Content, "\\n1.") {
