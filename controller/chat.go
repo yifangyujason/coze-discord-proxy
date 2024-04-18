@@ -263,7 +263,7 @@ func ChatForOpenAI(c *gin.Context) {
 				}*/
 
 				newContent := strings.Replace(reply.Choices[0].Message.Content, strLen, "", 1)
-				common.SysLog(fmt.Sprintf("newContent响应信息：{%s}", newContent))
+				//common.SysLog(fmt.Sprintf("newContent响应信息：{%s}", newContent))
 				if newContent == "" || strings.HasSuffix(newContent, "[DONE]") {
 					common.SysLog("newContent为空，或者DONE结尾")
 					return true
