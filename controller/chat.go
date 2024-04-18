@@ -226,10 +226,13 @@ func ChatForOpenAI(c *gin.Context) {
 	defer delete(discord.ReplyStopChans, sentMsg.ID)
 
 	timeDuration := common.RequestOutTimeDuration
+	var isfastTime bool = common.Contains(common.FastModel, request.Model)
 	var isPic bool = common.Contains(common.DrawMessages, content)
 	if isPic {
 		timeDuration = 1 * time.Minute
 		common.SysLog(fmt.Sprintf("请求画图的，超时时间改为：{%s}", timeDuration))
+	} else if isfastTime {
+		timeDuration = 5 * time.Second
 	}
 
 	timer, err := setTimerWithHeader(c, request.Stream, timeDuration)

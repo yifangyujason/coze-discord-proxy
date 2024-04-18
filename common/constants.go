@@ -52,4 +52,6 @@ var DrawMessages = []string{"画",
 	"绘",
 	"draw"}
 
+var FastModel = []string{"3.5"}
+
 var CozeDailyLimitErrorMessages = []string{"You have exceeded the daily limit for sending messages to the bot. Please try again later."}
