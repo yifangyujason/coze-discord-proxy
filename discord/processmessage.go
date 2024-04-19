@@ -26,7 +26,7 @@ func processMessageUpdate(m *discordgo.MessageUpdate) model.ReplyResp {
 }
 
 func processMessageUpdateForOpenAI(m *discordgo.MessageUpdate) model.OpenAIChatCompletionResponse {
-
+	common.SysLog(fmt.Sprintf("MessageUpdate响应信息：{%s}", m.Content))
 	if len(m.Embeds) != 0 {
 		for _, embed := range m.Embeds {
 			if embed.Image != nil && !strings.Contains(m.Content, embed.Image.URL) {
