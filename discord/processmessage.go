@@ -26,10 +26,10 @@ func processMessageUpdate(m *discordgo.MessageUpdate) model.ReplyResp {
 }
 
 func processMessageUpdateForOpenAI(m *discordgo.MessageUpdate) model.OpenAIChatCompletionResponse {
-	common.SysLog(fmt.Sprintf("MessageUpdate响应信息：{%s}", m.Content))
+	common.SysLog(fmt.Sprintf("前MessageUpdate响应信息：{%s}", m.Content))
 	// 使用正则表达式匹配内容，并去除首尾的尖括号
 	m.Content = common.RemoveAngleBrackets(m.Content)
-
+	common.SysLog(fmt.Sprintf("后MessageUpdate响应信息：{%s}", m.Content))
 	if len(m.Embeds) != 0 {
 		for _, embed := range m.Embeds {
 			if embed.Image != nil && !strings.Contains(m.Content, embed.Image.URL) {
