@@ -253,19 +253,19 @@ func ChatForOpenAI(c *gin.Context) {
 				timerReset(c, request.Stream, timer, timeDuration)
 				//common.SysLog(fmt.Sprintf("响应信息：{%s}", reply.Choices[0].Message.Content))
 				// TODO 多张图片问题
-				/*if !strings.HasPrefix(reply.Choices[0].Message.Content, strLen) {
-					common.SysLog(fmt.Sprintf("进入了多张图片问题代码，Content：{%s}，strLen：{%s}", reply.Choices[0].Message.Content,strLen))
+				if !strings.HasPrefix(reply.Choices[0].Message.Content, strLen) {
+					common.SysLog(fmt.Sprintf("进入了多张图片问题代码，Content：{%s}，strLen：{%s}", reply.Choices[0].Message.Content, strLen))
 					if len(strLen) > 3 && strings.HasPrefix(reply.Choices[0].Message.Content, "\\n1.") {
 						strLen = strLen[:len(strLen)-2]
 					} else {
 						return true
 					}
-				}*/
+				}
 
 				newContent := strings.Replace(reply.Choices[0].Message.Content, strLen, "", 1)
 				//common.SysLog(fmt.Sprintf("newContent响应信息：{%s}", newContent))
 				if newContent == "" || strings.HasSuffix(newContent, "[DONE]") {
-					common.SysLog(fmt.Sprintf("newContent为空，或者DONE结尾,newContent:{%s}",newContent))
+					common.SysLog(fmt.Sprintf("newContent为空，或者DONE结尾,newContent:{%s}", newContent))
 					return true
 				}
 				reply.Choices[0].Delta.Content = newContent
