@@ -259,12 +259,12 @@ func ReverseSegment(s string, segLen int) []string {
 // RemoveAngleBrackets 函数接受一个字符串参数，
 // 尝试只去除字符串两边的尖括号。
 func RemoveAngleBrackets(input string) string {
-	re := regexp.MustCompile(`(.*?)"<(.*?)>"(.+?)`)
-	replacement := "$1\"$2\"$3"
+	re := regexp.MustCompile(`(.*?)"<(.*?)>(.+?)`)
+	replacement := "$1\"$2$3"
 	return re.ReplaceAllString(input, replacement)
 }
 func ContainAngleBrackets(input string) bool {
-	re := regexp.MustCompile(`\"<(.+)>\"`)
+	re := regexp.MustCompile(`\"<(.+)>`)
 	matches := re.FindStringSubmatch(input)
 
 	if len(matches) > 1 {
