@@ -39,7 +39,7 @@ func processMessageUpdateForOpenAI(m *discordgo.MessageUpdate) model.OpenAIChatC
 				if m.Content != "" {
 					m.Content += "\n"
 				}
-				m.Content += fmt.Sprintf("%s\n![Image](%s)", embed.Image.URL, embed.Image.URL)
+				m.Content += fmt.Sprintf("[![Image](%s)](%s)", embed.Image.URL, embed.Image.URL)
 			}
 		}
 	}
@@ -131,7 +131,8 @@ func processMessageCreateForOpenAI(m *discordgo.MessageCreate) model.OpenAIChatC
 				if m.Content != "" {
 					m.Content += "\n"
 				}
-				m.Content += fmt.Sprintf("%s\n![Image](%s)", embed.Image.URL, embed.Image.URL)
+				m.Content += fmt.Sprintf("[![Image](%s)](%s)", embed.Image.URL, embed.Image.URL)
+
 			}
 		}
 	}
