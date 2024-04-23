@@ -39,7 +39,7 @@ var (
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute
 
-var RequestOutTimeDuration = 18 * time.Second
+var RequestOutTimeDuration = 15 * time.Second
 
 var CozeErrorMsg = "Something wrong occurs, please retry. If the error persists, please contact the support team."
 
@@ -52,6 +52,6 @@ var DrawMessages = []string{"画",
 	"绘",
 	"draw"}
 
-var CozeDailyLimitErrorMessages = []string{"You have exceeded the daily limit for sending messages to the bot. Please try again later."}
-
 var FastModel = []string{"3.5"}
+
+var CozeDailyLimitErrorMessages = []string{"You have exceeded the daily limit for sending messages to the bot. Please try again later."}
