@@ -232,7 +232,7 @@ func ChatForOpenAI(c *gin.Context) {
 		timeDuration = 1 * time.Minute
 		common.SysLog(fmt.Sprintf("请求画图的，超时时间改为：{%s}", timeDuration))
 	} else if isfastTime {
-		timeDuration = 5 * time.Second
+		timeDuration = 10 * time.Second
 	}
 
 	timer, err := setTimerWithHeader(c, request.Stream, timeDuration)
