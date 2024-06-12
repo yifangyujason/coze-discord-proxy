@@ -232,7 +232,7 @@ func ChatForOpenAI(c *gin.Context) {
 		timeDuration = 1 * time.Minute
 		common.SysLog(fmt.Sprintf("请求画图的，超时时间改为：{%s}", timeDuration))
 	} else if isfastTime {
-		timeDuration = 10 * time.Second
+		timeDuration = 12 * time.Second
 	}
 
 	timer, err := setTimerWithHeader(c, request.Stream, timeDuration)
@@ -251,7 +251,7 @@ func ChatForOpenAI(c *gin.Context) {
 			select {
 			case reply := <-replyChan:
 				timerReset(c, request.Stream, timer, timeDuration)
-				common.SysLog(fmt.Sprintf("响应信息：{%s}", reply.Choices[0].Message.Content))
+				//common.SysLog(fmt.Sprintf("响应信息：{%s}", reply.Choices[0].Message.Content))
 				// TODO 多张图片问题
 				// if !strings.HasPrefix(reply.Choices[0].Message.Content, strLen) {
 				// 	//common.SysLog(fmt.Sprintf("进入了多张图片问题代码，Content：{%s}，strLen：{%s}", reply.Choices[0].Message.Content, strLen))
