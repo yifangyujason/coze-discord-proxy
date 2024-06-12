@@ -246,7 +246,7 @@ func ChatForOpenAI(c *gin.Context) {
 	}
 
 	if request.Stream {
-		strLen := ""
+		// strLen := ""
 		c.Stream(func(w io.Writer) bool {
 			select {
 			case reply := <-replyChan:
