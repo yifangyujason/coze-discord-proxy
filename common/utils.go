@@ -256,6 +256,16 @@ func ReverseSegment(s string, segLen int) []string {
 	return result
 }
 
+func FilterSlice(slice []string, filter string) []string {
+	var result []string
+	for _, value := range slice {
+		if value != filter {
+			result = append(result, value)
+		}
+	}
+	return result
+}
+
 // RemoveAngleBrackets 函数接受一个字符串参数，
 // 尝试只去除字符串两边的尖括号。
 func RemoveAngleBrackets(input string) string {

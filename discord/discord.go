@@ -33,7 +33,7 @@ var ChannelAutoDelTime = os.Getenv("CHANNEL_AUTO_DEL_TIME")
 var CozeBotStayActiveEnable = os.Getenv("COZE_BOT_STAY_ACTIVE_ENABLE")
 var UserAgent = os.Getenv("USER_AGENT")
 var UserAuthorization = os.Getenv("USER_AUTHORIZATION")
-var UserId = os.Getenv("USER_ID")
+var UserAuthorizations = strings.Split(UserAuthorization, ",")
 
 var BotConfigList []model.BotConfig
 
@@ -96,9 +96,9 @@ func StartBot(ctx context.Context, token string) {
 }
 
 func checkEnvVariable() {
-	if UserAuthorization == "" {
-		common.FatalLog("环境变量 USER_AUTHORIZATION 未设置")
-	}
+	if len(UserAuthorizations) == 0 {
+        common.FatalLog("环境变量 USER_AUTHORIZATION 未设置")
+    }
 	if UserId == "" {
 		common.FatalLog("环境变量 USER_ID 未设置")
 	}
