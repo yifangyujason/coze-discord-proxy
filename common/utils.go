@@ -238,6 +238,18 @@ func RandomElement[T any](slice []T) (T, error) {
 	return slice[index], nil
 }
 
+// PollElement 返回给定切片中的轮询元素
+var index int;
+func PollElement[T any](slice []T) (T, error) {
+	if len(slice) == 0 {
+		var zero T
+		return zero, fmt.Errorf("empty slice")
+	}
+	element := slice[index]
+	index = (index + 1) % len(slice)
+	return element, nil
+}
+
 func ReverseSegment(s string, segLen int) []string {
 	var result []string
 	runeSlice := []rune(s) // 将字符串转换为rune切片，以正确处理多字节字符

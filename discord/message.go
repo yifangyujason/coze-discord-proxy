@@ -31,7 +31,7 @@ func SendMsgByAuthorization(c *gin.Context, content, channelId string) (string, 
         return "", err
     }
 
-    auth, err := common.RandomElement(UserAuthorizations)
+    auth, err := common.PollElement(UserAuthorizations)
     if err != nil {
         return "", err
     }
